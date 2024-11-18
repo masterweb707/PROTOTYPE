@@ -11,6 +11,15 @@ body {
     font-family: Arial, sans-serif;
 }
 
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+}
+
 a {
     color: white;
 }
@@ -52,7 +61,7 @@ body {
 nav {
     padding: 1rem;
     display: flex;
-    background-color:rgba(65,71,97,255);
+    background-color: rgb(34, 37, 49);
 }
 
 
@@ -95,4 +104,4 @@ nav {
 .ham-menu.active span:nth-child(3) {
     top: 50%;
     transform: translate(-50%, -50%) rotate(-45deg);
-}
+    } 
