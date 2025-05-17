@@ -13,6 +13,7 @@
     input, button { padding: 10px; margin: 5px; font-size: 1em; }
     .message { margin: 5px 0; }
     .author { font-weight: bold; color: #6cf; }
+    #logout { position: absolute; top: 10px; right: 10px; background: #222; color: #fff; border: none; padding: 8px; }
   </style>
 </head>
 <body>
@@ -25,6 +26,7 @@
 </div>
 
 <div id="chat-container">
+  <button id="logout" onclick="logout()">Logout</button>
   <div id="messages"></div>
   <div id="input">
     <input type="text" id="message" placeholder="Type a message...">
@@ -50,7 +52,12 @@
   const db = firebase.database();
   const chatRef = db.ref("messages");
 
-  let username = "";
+  let username = localStorage.getItem("username");
+
+  if (username) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("chat-container").style.display = "flex";
+  }
 
   function enterChat() {
     const nameInput = document.getElementById("username").value.trim();
@@ -59,9 +66,15 @@
       alert("Invalid name or password.");
       return;
     }
+    localStorage.setItem("username", nameInput);
     username = nameInput;
     document.getElementById("login").style.display = "none";
     document.getElementById("chat-container").style.display = "flex";
+  }
+
+  function logout() {
+    localStorage.removeItem("username");
+    location.reload();
   }
 
   function sendMessage() {
