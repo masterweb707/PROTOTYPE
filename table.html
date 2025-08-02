@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML Table Code Generator</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    input, button { margin: 5px; padding: 5px; }
+    textarea { width: 100%; height: 250px; margin-top: 10px; font-family: monospace; }
+    .cell-group { margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<center>
+  <h3 class="color-cycle">HTML TABLE GENERATOR</h3>
+</center>
+
+<style>
+  .color-cycle {
+    animation: colorChange 1s infinite alternate;
+  }
+
+  @keyframes colorChange {
+    from { color: red; }
+    to { color: cyan; }
+  }
+</style>
+
+  <label>Rows: <input type="number" id="rows" min="1" max="10" value="2"></label>
+  <label>Columns: <input type="number" id="cols" min="1" max="10" value="2"></label>
+  <button onclick="createInputs()">Create Table Inputs</button>
+
+  <div id="inputsArea"></div>
+
+  <button onclick="generateHTML()">Generate HTML Code</button>
+  <button onclick="copyCode()">Copy Code</button>
+
+  <h3>Generated HTML Table Code:</h3>
+  <textarea id="codeOutput" readonly></textarea>
+
+  <script>
+    function createInputs() {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const container = document.getElementById('inputsArea');
+      container.innerHTML = '';
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const div = document.createElement('div');
+          div.className = "cell-group";
+          div.innerHTML = `
+            <strong>Cell [${r + 1}, ${c + 1}]</strong><br>
+            Content: <input type="text" id="content-${r}-${c}" placeholder="Text or image URL">
+            Rowspan: <input type="number" id="rowspan-${r}-${c}" min="1" value="1" style="width:60px;">
+            Colspan: <input type="number" id="colspan-${r}-${c}" min="1" value="1" style="width:60px;">
+          `;
+          container.appendChild(div);
+        }
+      }
+    }
+
+    function generateHTML() {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const used = Array.from({ length: rows }, () => Array(cols).fill(false));
+      let html = `<table border="1">\n`;
+
+      for (let r = 0; r < rows; r++) {
+        html += `  <tr>\n`;
+        for (let c = 0; c < cols; c++) {
+          if (used[r][c]) continue;
+
+          const content = document.getElementById(`content-${r}-${c}`).value.trim();
+          const rowspan = parseInt(document.getElementById(`rowspan-${r}-${c}`).value) || 1;
+          const colspan = parseInt(document.getElementById(`colspan-${r}-${c}`).value) || 1;
+
+          for (let i = r; i < r + rowspan; i++) {
+            for (let j = c; j < c + colspan; j++) {
+              if (i < rows && j < cols) used[i][j] = true;
+            }
+          }
+
+          let cellContent = content;
+          if (content.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            cellContent = `<img src="${content}" alt="img" style="max-width:100px;">`;
+          }
+
+          html += `    <td rowspan="${rowspan}" colspan="${colspan}">${cellContent}</td>\n`;
+        }
+        html += `  </tr>\n`;
+      }
+
+      html += `</table>`;
+      document.getElementById('codeOutput').value = html;
+    }
+
+    function copyCode() {
+      const textarea = document.getElementById('codeOutput');
+      textarea.select();
+      document.execCommand('copy');
+      alert("HTML code copied to clipboard!");
+    }
+  </script>
+
+</body>
+</html>
