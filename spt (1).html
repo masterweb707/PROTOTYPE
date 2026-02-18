@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Progress Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .overall-progress {
+            margin-top: 15px;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .add-subject-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            min-width: 200px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .subjects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+
+        .subject-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .subject-header {
+            padding: 20px;
+            background: #fafafa;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .subject-header:hover {
+            background: #f0f0f0;
+        }
+
+        .subject-title-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .expand-icon {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .subject-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .subject-progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            max-width: 0;
+            transition: transform 0.3s;
+        }
+
+        .subject-info {
+            flex: 1;
+        }
+
+        .subject-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .subject-progress-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .subject-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chapters-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .chapters-container.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .chapters-list {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chapter-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .chapter-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            transition: background 0.3s;
+        }
+
+        .chapter-header:hover {
+            background: #f5f5f5;
+        }
+
+        .chapter-title-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .chapter-name {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .chapter-progress {
+            flex: 1;
+            max-width: 200px;
+            margin: 0 15px;
+        }
+
+        .chapter-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .topics-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #fafafa;
+        }
+
+        .topics-container.expanded {
+            max-height: 1000px;
+            transition: max-height 0.4s ease-in;
+        }
+
+        .topics-list {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .topic-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .topic-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .topic-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 2px;
+            accent-color: #4CAF50;
+        }
+
+        .topic-content {
+            flex: 1;
+        }
+
+        .topic-name {
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .topic-name:hover {
+            background: #e3f2fd;
+        }
+
+        .topic-name.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .topic-notes {
+            margin-top: 8px;
+            padding: 8px;
+            background: #fff3cd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #666;
+            border-left: 3px solid #ffc107;
+        }
+
+        .topic-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .add-chapter-section, .add-topic-section {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #757575;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .subject-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .subject-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .chapter-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .chapter-progress {
+                max-width: 100%;
+                width: 100%;
+                margin: 0;
+            }
+
+            .chapter-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Study Progress Tracker</h1>
+            <p>Organize your subjects, track your progress, and achieve your learning goals</p>
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSubjects">0</div>
+                    <div class="stat-label">Subjects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalChapters">0</div>
+                    <div class="stat-label">Chapters</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTopics">0</div>
+                    <div class="stat-label">Topics</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completionRate">0%</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="add-subject-section">
+            <div class="input-group">
+                <input type="text" id="newSubjectInput" placeholder="Enter subject name (e.g., Mathematics, Physics, History...)" />
+                <button class="btn-primary" onclick="addSubject()">
+                    <span>+</span> Add Subject
+                </button>
+            </div>
+        </div>
+
+        <div id="subjectsList" class="subjects-list">
+            <div class="empty-state">
+                <div class="empty-state-icon">📖</div>
+                <h3>No subjects yet</h3>
+                <p>Add your first subject above to start tracking your study progress!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topic Notes Modal -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📝 Topic Notes</h3>
+                <p id="modalTopicName" style="color: #666; margin-top: 5px;"></p>
+            </div>
+            <div class="form-group">
+                <label for="topicNotes">Notes & Description:</label>
+                <textarea id="topicNotes" placeholder="Add detailed notes, resources, or descriptions for this topic..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeNotesModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveTopicNotes()">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure
+        let appData = {
+            subjects: [],
+            expandedSubjects: new Set(),
+            expandedChapters: new Set()
+        };
+
+        let currentEditingTopic = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            render();
+            
+            // Enter key support
+            document.getElementById('newSubjectInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addSubject();
+            });
+
+            // Close modal on outside click
+            document.getElementById('notesModal').addEventListener('click', (e) => {
+                if (e.target.id === 'notesModal') closeNotesModal();
+            });
+        });
+
+        // Data Management
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('studyProgressTracker');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    appData.subjects = parsed.subjects || [];
+                    appData.expandedSubjects = new Set(parsed.expandedSubjects || []);
+                    appData.expandedChapters = new Set(parsed.expandedChapters || []);
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        function saveData() {
+            try {
+                const toSave = {
+                    subjects: appData.subjects,
+                    expandedSubjects: Array.from(appData.expandedSubjects),
+                    expandedChapters: Array.from(appData.expandedChapters)
+                };
+                localStorage.setItem('studyProgressTracker', JSON.stringify(toSave));
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Subject Operations
+        function addSubject() {
+            const input = document.getElementById('newSubjectInput');
+            const name = input.value.trim();
+            
+            if (!name) {
+                alert('Please enter a subject name');
+                return;
+            }
+
+            const subject = {
+                id: generateId(),
+                name: name,
+                chapters: []
+            };
+
+            appData.subjects.push(subject);
+            appData.expandedSubjects.add(subject.id);
+            input.value = '';
+            saveData();
+            render();
+        }
+
+        function deleteSubject(subjectId) {
+            if (!confirm('Are you sure you want to delete this subject and all its chapters?')) return;
+            
+            appData.subjects = appData.subjects.filter(s => s.id !== subjectId);
+            appData.expandedSubjects.delete(subjectId);
+            saveData();
+            render();
+        }
+
+        function toggleSubject(subjectId) {
+            if (appData.expandedSubjects.has(subjectId)) {
+                appData.expandedSubjects.delete(subjectId);
+            } else {
+                appData.expandedSubjects.add(subjectId);
+            }
+            saveData();
+            render();
+        }
+
+        // Chapter Operations
+        function addChapter(subjectId) {
+            const input = document.getElementById(`chapter-input-${subjectId}`);
+            const name = input.value.trim();
+            
+            if (!name) {
+                alert('Please enter a chapter name');
+                return;
+            }
+
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = {
+                id: generateId(),
+                name: name,
+                topics: []
+            };
+
+            subject.chapters.push(chapter);
+            appData.expandedChapters.add(chapter.id);
+            saveData();
+            render();
+        }
+
+        function deleteChapter(subjectId, chapterId) {
+            if (!confirm('Are you sure you want to delete this chapter and all its topics?')) return;
+            
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            subject.chapters = subject.chapters.filter(c => c.id !== chapterId);
+            appData.expandedChapters.delete(chapterId);
+            saveData();
+            render();
+        }
+
+        function toggleChapter(chapterId) {
+            if (appData.expandedChapters.has(chapterId)) {
+                appData.expandedChapters.delete(chapterId);
+            } else {
+                appData.expandedChapters.add(chapterId);
+            }
+            saveData();
+            render();
+        }
+
+        // Topic Operations
+        function addTopic(subjectId, chapterId) {
+            const input = document.getElementById(`topic-input-${chapterId}`);
+            const name = input.value.trim();
+            
+            if (!name) {
+                alert('Please enter a topic name');
+                return;
+            }
+
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = subject.chapters.find(c => c.id === chapterId);
+            const topic = {
+                id: generateId(),
+                name: name,
+                completed: false,
+                notes: ''
+            };
+
+            chapter.topics.push(topic);
+            saveData();
+            render();
+        }
+
+        function deleteTopic(subjectId, chapterId, topicId) {
+            if (!confirm('Are you sure you want to delete this topic?')) return;
+            
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = subject.chapters.find(c => c.id === chapterId);
+            chapter.topics = chapter.topics.filter(t => t.id !== topicId);
+            saveData();
+            render();
+        }
+
+        function toggleTopic(subjectId, chapterId, topicId) {
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = subject.chapters.find(c => c.id === chapterId);
+            const topic = chapter.topics.find(t => t.id === topicId);
+            
+            topic.completed = !topic.completed;
+            saveData();
+            render();
+        }
+
+        // Notes Modal
+        function openNotesModal(subjectId, chapterId, topicId) {
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = subject.chapters.find(c => c.id === chapterId);
+            const topic = chapter.topics.find(t => t.id === topicId);
+            
+            currentEditingTopic = { subjectId, chapterId, topicId };
+            document.getElementById('modalTopicName').textContent = `${subject.name} > ${chapter.name} > ${topic.name}`;
+            document.getElementById('topicNotes').value = topic.notes || '';
+            document.getElementById('notesModal').classList.add('active');
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notesModal').classList.remove('active');
+            currentEditingTopic = null;
+        }
+
+        function saveTopicNotes() {
+            if (!currentEditingTopic) return;
+            
+            const { subjectId, chapterId, topicId } = currentEditingTopic;
+            const subject = appData.subjects.find(s => s.id === subjectId);
+            const chapter = subject.chapters.find(c => c.id === chapterId);
+            const topic = chapter.topics.find(t => t.id === topicId);
+            
+            topic.notes = document.getElementById('topicNotes').value.trim();
+            saveData();
+            render();
+            closeNotesModal();
+        }
+
+        // Progress Calculations
+        function calculateSubjectProgress(subject) {
+            let totalTopics = 0;
+            let completedTopics = 0;
+
+            subject.chapters.forEach(chapter => {
+                chapter.topics.forEach(topic => {
+                    totalTopics++;
+                    if (topic.completed) completedTopics++;
+                });
+            });
+
+            return totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
+        }
+
+        function calculateChapterProgress(chapter) {
+            if (chapter.topics.length === 0) return 0;
+            const completed = chapter.topics.filter(t => t.completed).length;
+            return Math.round((completed / chapter.topics.length) * 100);
+        }
+
+        function getGlobalStats() {
+            let subjects = appData.subjects.length;
+            let chapters = 0;
+            let topics = 0;
+            let completed = 0;
+
+            appData.subjects.forEach(subject => {
+                chapters += subject.chapters.length;
+                subject.chapters.forEach(chapter => {
+                    topics += chapter.topics.length;
+                    completed += chapter.topics.filter(t => t.completed).length;
+                });
+            });
+
+            const rate = topics === 0 ? 0 : Math.round((completed / topics) * 100);
+            return { subjects, chapters, topics, completed, rate };
+        }
+
+        // Rendering
+        function render() {
+            const container = document.getElementById('subjectsList');
+            const stats = getGlobalStats();
+
+            // Update stats
+            document.getElementById('totalSubjects').textContent = stats.subjects;
+            document.getElementById('totalChapters').textContent = stats.chapters;
+            document.getElementById('totalTopics').textContent = stats.topics;
+            document.getElementById('completionRate').textContent = stats.rate + '%';
+
+            if (appData.subjects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📖</div>
+                        <h3>No subjects yet</h3>
+                        <p>Add your first subject above to start tracking your study progress!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = appData.subjects.map(subject => {
+                const progress = calculateSubjectProgress(subject);
+                const isExpanded = appData.expandedSubjects.has(subject.id);
+
+                return `
+                    <div class="subject-card ${isExpanded ? 'expanded' : ''}">
+                        <div class="subject-header" onclick="toggleSubject('${subject.id}')">
+                            <div class="subject-title-section">
+                                <span class="expand-icon">${isExpanded ? '▼' : '▶'}</span>
+                                <div class="subject-info">
+                                    <div class="subject-name">${escapeHtml(subject.name)}</div>
+                                    <div class="subject-progress-text">
+                                        ${subject.chapters.length} chapters • 
+                                        ${subject.chapters.reduce((acc, ch) => acc + ch.topics.length, 0)} topics • 
+                                        ${progress}% complete
+                                    </div>
+                                    <div class="progress-bar-container" style="margin-top: 8px; height: 8px;">
+                                        <div class="progress-bar" style="width: ${progress}%; font-size: 0;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="subject-actions" onclick="event.stopPropagation()">
+                                <button class="btn-danger btn-small" onclick="deleteSubject('${subject.id}')">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="chapters-container ${isExpanded ? 'expanded' : ''}">
+                            <div class="chapters-list">
+                                ${subject.chapters.map(chapter => {
+                                    const chapterProgress = calculateChapterProgress(chapter);
+                                    const isChapterExpanded = appData.expandedChapters.has(chapter.id);
+
+                                    return `
+                                        <div class="chapter-item">
+                                            <div class="chapter-header" onclick="toggleChapter('${chapter.id}')">
+                                                <div class="chapter-title-section">
+                                                    <span class="expand-icon">${isChapterExpanded ? '▼' : '▶'}</span>
+                                                    <span class="chapter-name">${escapeHtml(chapter.name)}</span>
+                                                    <div class="chapter-progress">
+                                                        <div class="progress-bar-container" style="height: 6px;">
+                                                            <div class="progress-bar" style="width: ${chapterProgress}%; font-size: 0;"></div>
+                                                        </div>
+                                                        <small style="color: #666;">${chapterProgress}%</small>
+                                                    </div>
+                                                </div>
+                                                <div class="chapter-actions" onclick="event.stopPropagation()">
+                                                    <button class="btn-danger btn-small" onclick="deleteChapter('${subject.id}', '${chapter.id}')">
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="topics-container ${isChapterExpanded ? 'expanded' : ''}">
+                                                <div class="topics-list">
+                                                    ${chapter.topics.map(topic => `
+                                                        <div class="topic-item">
+                                                            <input type="checkbox" 
+                                                                class="topic-checkbox" 
+                                                                ${topic.completed ? 'checked' : ''} 
+                                                                onchange="toggleTopic('${subject.id}', '${chapter.id}', '${topic.id}')"
+                                                            >
+                                                            <div class="topic-content">
+                                                                <div class="topic-name ${topic.completed ? 'completed' : ''}" 
+                                                                     onclick="openNotesModal('${subject.id}', '${chapter.id}', '${topic.id}')"
+                                                                     title="Click to add/edit notes">
+                                                                    ${escapeHtml(topic.name)}
+                                                                </div>
+                                                                ${topic.notes ? `<div class="topic-notes">${escapeHtml(topic.notes)}</div>` : ''}
+                                                            </div>
+                                                            <div class="topic-actions">
+                                                                <button class="btn-secondary btn-small" onclick="openNotesModal('${subject.id}', '${chapter.id}', '${topic.id}')" title="Edit Notes">
+                                                                    📝
+                                                                </button>
+                                                                <button class="btn-danger btn-small" onclick="deleteTopic('${subject.id}', '${chapter.id}', '${topic.id}')" title="Delete Topic">
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    `).join('')}
+
+                                                    <div class="add-topic-section">
+                                                        <div class="input-group">
+                                                            <input type="text" 
+                                                                id="topic-input-${chapter.id}" 
+                                                                placeholder="Add new topic..."
+                                                                onkeypress="if(event.key==='Enter') addTopic('${subject.id}', '${chapter.id}')"
+                                                            >
+                                                            <button class="btn-primary btn-small" onclick="addTopic('${subject.id}', '${chapter.id}')">
+                                                                + Add Topic
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+
+                                <div class="add-chapter-section">
+                                    <div class="input-group">
+                                        <input type="text" 
+                                            id="chapter-input-${subject.id}" 
+                                            placeholder="Add new chapter..."
+                                            onkeypress="if(event.key==='Enter') addChapter('${subject.id}')"
+                                        >
+                                        <button class="btn-secondary" onclick="addChapter('${subject.id}')">
+                                            + Add Chapter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
